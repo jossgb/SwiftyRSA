@@ -8,7 +8,7 @@
 
 import Foundation
 
-public enum SwiftyRSAError: Error {
+public enum SwiftyRSAError: Error, LocalizedError {
     
     case pemDoesNotContainKey
     case keyRepresentationFailed(error: CFError?)
