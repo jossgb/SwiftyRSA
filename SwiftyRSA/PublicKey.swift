@@ -94,12 +94,12 @@ public class PublicKey: Key {
             range: all
         )
         
-        let keys = matches.compactMap { result -> PublicKey? in //Fix for Swift 4.1 compiler 
+        let keys = matches.flatMap { result -> PublicKey? in
             let match = result.range(at:1)
             let start = pemString.index(pemString.startIndex, offsetBy: match.location)
             let end = pemString.index(start, offsetBy: match.length)
             
-            let range = Range<String.Index>(start..<end)
+            let range = (start..<end)
             
             let thisKey = String(pemString[range])
             
