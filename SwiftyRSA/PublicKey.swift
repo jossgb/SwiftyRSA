@@ -94,7 +94,7 @@ public class PublicKey: Key {
             range: all
         )
         
-        let keys = matches.flatMap { result -> PublicKey? in
+        let keys = matches.compactMap { result -> PublicKey? in
             let match = result.range(at:1)
             let start = pemString.index(pemString.startIndex, offsetBy: match.location)
             let end = pemString.index(start, offsetBy: match.length)
