@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import CommonCrypto
 
 public class ClearMessage: Message {
     
@@ -150,22 +151,105 @@ public class ClearMessage: Message {
     }
     
     func digest(digestType: Signature.DigestType) -> Data {
-        
-        let digest: Data
-        
         switch digestType {
         case .sha1:
-            digest = (data as NSData).swiftyRSASHA1()
+            return data.sha1()
         case .sha224:
-            digest = (data as NSData).swiftyRSASHA224()
+            return data.sha224()
         case .sha256:
-            digest = (data as NSData).swiftyRSASHA256()
+            return data.sha256()
         case .sha384:
-            digest = (data as NSData).swiftyRSASHA384()
+            return data.sha384()
         case .sha512:
-            digest = (data as NSData).swiftyRSASHA512()
+            return data.sha512()
         }
         
-        return digest
+        return Data()
     }
 }
+
+extension Data {
+    func sha1() -> Data {
+        var digest = [UInt8](repeating: 0, count:Int(CC_SHA1_DIGEST_LENGTH))
+        self.withUnsafeBytes {
+            _ = CC_SHA1($0.baseAddress, CC_LONG(self.count), &digest)
+        }
+        
+        return NSData(bytes: &digest, length:Int(CC_SHA1_DIGEST_LENGTH)) as Data
+    }
+    func sha224() -> Data {
+        var digest = [UInt8](repeating: 0, count:Int(CC_SHA224_DIGEST_LENGTH))
+        self.withUnsafeBytes {
+            _ = CC_SHA224($0.baseAddress, CC_LONG(self.count), &digest)
+        }
+        return NSData(bytes: &digest, length:Int(CC_SHA224_DIGEST_LENGTH)) as Data
+
+    }
+    func sha256() -> Data {
+        var digest = [UInt8](repeating: 0, count:Int(CC_SHA256_DIGEST_LENGTH))
+        self.withUnsafeBytes {
+            _ = CC_SHA256($0.baseAddress, CC_LONG(self.count), &digest)
+        }
+        return NSData(bytes: &digest, length:Int(CC_SHA256_DIGEST_LENGTH)) as Data
+
+    }
+    func sha384() -> Data {
+        var digest = [UInt8](repeating: 0, count:Int(CC_SHA384_DIGEST_LENGTH))
+        self.withUnsafeBytes {
+            _ = CC_SHA384($0.baseAddress, CC_LONG(self.count), &digest)
+        }
+        return NSData(bytes: &digest, length:Int(CC_SHA384_DIGEST_LENGTH)) as Data
+
+    }
+    func sha512() -> Data {
+        var digest = [UInt8](repeating: 0, count:Int(CC_SHA512_DIGEST_LENGTH))
+        self.withUnsafeBytes {
+            _ = CC_SHA512($0.baseAddress, CC_LONG(self.count), &digest)
+        }
+        return NSData(bytes: &digest, length:Int(CC_SHA512_DIGEST_LENGTH)) as Data
+
+    }
+}
+
+/*
+ - (nonnull NSData*) SwiftyRSASHA1 {
+     unsigned int outputLength = CC_SHA1_DIGEST_LENGTH;
+     unsigned char output[outputLength];
+     
+     CC_SHA1(self.bytes, (unsigned int) self.length, output);
+     return [NSData dataWithBytes:output length:outputLength];
+ }
+
+ - (nonnull NSData*) SwiftyRSASHA224 {
+     unsigned int outputLength = CC_SHA224_DIGEST_LENGTH;
+     unsigned char output[outputLength];
+     
+     CC_SHA224(self.bytes, (unsigned int) self.length, output);
+     return [NSData dataWithBytes:output length:outputLength];
+ }
+
+ - (nonnull NSData*) SwiftyRSASHA256 {
+     unsigned int outputLength = CC_SHA256_DIGEST_LENGTH;
+     unsigned char output[outputLength];
+     
+     CC_SHA256(self.bytes, (unsigned int) self.length, output);
+     return [NSData dataWithBytes:output length:outputLength];
+ }
+
+ - (nonnull NSData*) SwiftyRSASHA384 {
+     unsigned int outputLength = CC_SHA384_DIGEST_LENGTH;
+     unsigned char output[outputLength];
+     
+     CC_SHA384(self.bytes, (unsigned int) self.length, output);
+     return [NSData dataWithBytes:output length:outputLength];
+ }
+
+ - (nonnull NSData*) SwiftyRSASHA512 {
+     unsigned int outputLength = CC_SHA512_DIGEST_LENGTH;
+     unsigned char output[outputLength];
+     
+     CC_SHA512(self.bytes, (unsigned int) self.length, output);
+     return [NSData dataWithBytes:output length:outputLength];
+ }
+
+ */
