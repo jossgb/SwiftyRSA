@@ -163,8 +163,6 @@ public class ClearMessage: Message {
         case .sha512:
             return data.sha512()
         }
-        
-        return Data()
     }
 }
 
