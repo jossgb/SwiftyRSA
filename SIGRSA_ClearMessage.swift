@@ -9,7 +9,7 @@
 import Foundation
 import CommonCrypto
 
-public class ClearMessage: Message {
+public class SIGRSA_ClearMessage: SIGRSA_Message {
     
     /// Data of the message
     public let data: Data
@@ -26,10 +26,10 @@ public class ClearMessage: Message {
     /// - Parameters:
     ///   - string: String value of the clear message
     ///   - encoding: Encoding to use to generate the clear data
-    /// - Throws: SwiftyRSAError
+    /// - Throws: SIGRSA_SwiftyRSAError
     public convenience init(string: String, using encoding: String.Encoding) throws {
         guard let data = string.data(using: encoding) else {
-            throw SwiftyRSAError.stringToDataConversionFailed
+            throw SIGRSA_SwiftyRSAError.stringToDataConversionFailed
         }
         self.init(data: data)
     }
@@ -39,10 +39,10 @@ public class ClearMessage: Message {
     ///
     /// - Parameter encoding: Encoding to use during the string conversion
     /// - Returns: String representation of the clear message
-    /// - Throws: SwiftyRSAError
+    /// - Throws: SIGRSA_SwiftyRSAError
     public func string(encoding: String.Encoding) throws -> String {
         guard let str = String(data: data, encoding: encoding) else {
-            throw SwiftyRSAError.dataToStringConversionFailed
+            throw SIGRSA_SwiftyRSAError.dataToStringConversionFailed
         }
         return str
     }
@@ -53,8 +53,8 @@ public class ClearMessage: Message {
     ///   - key: Public key to encrypt the clear message with
     ///   - padding: Padding to use during the encryption
     /// - Returns: Encrypted message
-    /// - Throws: SwiftyRSAError
-    public func encrypted(with key: PublicKey, padding: Padding) throws -> EncryptedMessage {
+    /// - Throws: SIGRSA_SwiftyRSAError
+    public func encrypted(with key: SIGRSA_PublicKey, padding: Padding) throws -> SIGRSA_EncryptedMessage {
         
         let blockSize = SecKeyGetBlockSize(key.reference)
         let maxChunkSize = (padding == []) ? blockSize : blockSize - 11
@@ -75,7 +75,7 @@ public class ClearMessage: Message {
             let status = SecKeyEncrypt(key.reference, padding, chunkData, chunkData.count, &encryptedDataBuffer, &encryptedDataLength)
             
             guard status == noErr else {
-                throw SwiftyRSAError.chunkEncryptFailed(index: idx)
+                throw SIGRSA_SwiftyRSAError.chunkEncryptFailed(index: idx)
             }
             
             encryptedDataBytes += encryptedDataBuffer
@@ -84,7 +84,7 @@ public class ClearMessage: Message {
         }
         
         let encryptedData = Data(bytes: UnsafePointer<UInt8>(encryptedDataBytes), count: encryptedDataBytes.count)
-        return EncryptedMessage(data: encryptedData)
+        return SIGRSA_EncryptedMessage(data: encryptedData)
     }
     
     /// Signs a clear message using a private key.
@@ -95,15 +95,15 @@ public class ClearMessage: Message {
     ///   - key: Private key to sign the clear message with
     ///   - digestType: Digest
     /// - Returns: Signature of the clear message after signing it with the specified digest type.
-    /// - Throws: SwiftyRSAError
-    public func signed(with key: PrivateKey, digestType: Signature.DigestType) throws -> Signature {
+    /// - Throws: SIGRSA_SwiftyRSAError
+    public func signed(with key: SIGRSA_PrivateKey, digestType: SIGRSA_Signature.DigestTypeRSA) throws -> SIGRSA_Signature {
         
         let digest = self.digest(digestType: digestType)
         let blockSize = SecKeyGetBlockSize(key.reference)
         let maxChunkSize = blockSize - 11
         
         guard digest.count <= maxChunkSize else {
-            throw SwiftyRSAError.invalidDigestSize(digestSize: digest.count, maxChunkSize: maxChunkSize)
+            throw SIGRSA_SwiftyRSAError.invalidDigestSize(digestSize: digest.count, maxChunkSize: maxChunkSize)
         }
         
         var digestBytes = [UInt8](repeating: 0, count: digest.count)
@@ -115,11 +115,11 @@ public class ClearMessage: Message {
         let status = SecKeyRawSign(key.reference, digestType.padding, digestBytes, digestBytes.count, &signatureBytes, &signatureDataLength)
         
         guard status == noErr else {
-            throw SwiftyRSAError.signatureCreateFailed(status: status)
+            throw SIGRSA_SwiftyRSAError.signatureCreateFailed(status: status)
         }
         
         let signatureData = Data(bytes: UnsafePointer<UInt8>(signatureBytes), count: signatureBytes.count)
-        return Signature(data: signatureData)
+        return SIGRSA_Signature(data: signatureData)
     }
     
     /// Verifies the signature of a clear message.
@@ -129,8 +129,8 @@ public class ClearMessage: Message {
     ///   - signature: Signature to verify
     ///   - digestType: Digest type used for the signature
     /// - Returns: Result of the verification
-    /// - Throws: SwiftyRSAError
-    public func verify(with key: PublicKey, signature: Signature, digestType: Signature.DigestType) throws -> Bool {
+    /// - Throws: SIGRSA_SwiftyRSAError
+    public func verify(with key: SIGRSA_PublicKey, signature: SIGRSA_Signature, digestType: SIGRSA_Signature.DigestTypeRSA) throws -> Bool {
         
         let digest = self.digest(digestType: digestType)
         var digestBytes = [UInt8](repeating: 0, count: digest.count)
@@ -146,11 +146,11 @@ public class ClearMessage: Message {
         } else if status == -9809 {
             return false
         } else {
-            throw SwiftyRSAError.signatureVerifyFailed(status: status)
+            throw SIGRSA_SwiftyRSAError.signatureVerifyFailed(status: status)
         }
     }
     
-    func digest(digestType: Signature.DigestType) -> Data {
+    func digest(digestType: SIGRSA_Signature.DigestTypeRSA) -> Data {
         switch digestType {
         case .sha1:
             return data.sha1()
@@ -209,45 +209,3 @@ extension Data {
     }
 }
 
-/*
- - (nonnull NSData*) SwiftyRSASHA1 {
-     unsigned int outputLength = CC_SHA1_DIGEST_LENGTH;
-     unsigned char output[outputLength];
-     
-     CC_SHA1(self.bytes, (unsigned int) self.length, output);
-     return [NSData dataWithBytes:output length:outputLength];
- }
-
- - (nonnull NSData*) SwiftyRSASHA224 {
-     unsigned int outputLength = CC_SHA224_DIGEST_LENGTH;
-     unsigned char output[outputLength];
-     
-     CC_SHA224(self.bytes, (unsigned int) self.length, output);
-     return [NSData dataWithBytes:output length:outputLength];
- }
-
- - (nonnull NSData*) SwiftyRSASHA256 {
-     unsigned int outputLength = CC_SHA256_DIGEST_LENGTH;
-     unsigned char output[outputLength];
-     
-     CC_SHA256(self.bytes, (unsigned int) self.length, output);
-     return [NSData dataWithBytes:output length:outputLength];
- }
-
- - (nonnull NSData*) SwiftyRSASHA384 {
-     unsigned int outputLength = CC_SHA384_DIGEST_LENGTH;
-     unsigned char output[outputLength];
-     
-     CC_SHA384(self.bytes, (unsigned int) self.length, output);
-     return [NSData dataWithBytes:output length:outputLength];
- }
-
- - (nonnull NSData*) SwiftyRSASHA512 {
-     unsigned int outputLength = CC_SHA512_DIGEST_LENGTH;
-     unsigned char output[outputLength];
-     
-     CC_SHA512(self.bytes, (unsigned int) self.length, output);
-     return [NSData dataWithBytes:output length:outputLength];
- }
-
- */

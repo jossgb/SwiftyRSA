@@ -8,14 +8,14 @@
 
 import Foundation
 
-public protocol Message {
+public protocol SIGRSA_Message {
     var data: Data { get }
     var base64String: String { get }
     init(data: Data)
     init(base64Encoded base64String: String) throws
 }
 
-public extension Message {
+public extension SIGRSA_Message {
     
     /// Base64-encoded string of the message data
     var base64String: String {
@@ -28,7 +28,7 @@ public extension Message {
     /// - Throws: SwiftyRSAError
     init(base64Encoded base64String: String) throws {
         guard let data = Data(base64Encoded: base64String) else {
-            throw SwiftyRSAError.invalidBase64String
+            throw SIGRSA_SwiftyRSAError.invalidBase64String
         }
         self.init(data: data)
     }

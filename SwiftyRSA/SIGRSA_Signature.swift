@@ -8,9 +8,9 @@
 
 import Foundation
 
-public class Signature {
+public class SIGRSA_Signature {
     
-    public enum DigestType {
+    public enum DigestTypeRSA {
         case sha1
         case sha224
         case sha256
@@ -44,7 +44,7 @@ public class Signature {
     /// - Throws: SwiftyRSAError
     public convenience init(base64Encoded base64String: String) throws {
         guard let data = Data(base64Encoded: base64String) else {
-            throw SwiftyRSAError.invalidBase64String
+            throw SIGRSA_SwiftyRSAError.invalidBase64String
         }
         self.init(data: data)
     }

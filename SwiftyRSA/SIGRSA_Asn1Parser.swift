@@ -9,7 +9,7 @@
 import Foundation
 
 /// Simple data scanner that consumes bytes from a raw data and keeps an updated position.
-private class Scanner {
+private class SIGRSA_Scanner {
     
     enum ScannerError: Error {
         case outOfBounds
@@ -115,7 +115,7 @@ private extension Data {
 /// A simple ASN1 parser that will recursively iterate over a root node and return a Node tree.
 /// The root node can be any of the supported nodes described in `Node`. If the parser encounters a sequence
 /// it will recursively parse its children.
-enum Asn1Parser {
+enum SIGRSA_Asn1Parser {
     
     /// An ASN1 node
     enum Node {
@@ -138,7 +138,7 @@ enum Asn1Parser {
     /// - Returns: Root ASN1 Node
     /// - Throws: A ParserError if anything goes wrong, or if an unknown node was encountered
     static func parse(data: Data) throws -> Node {
-        let scanner = Scanner(data: data)
+        let scanner = SIGRSA_Scanner(data: data)
         let node = try parseNode(scanner: scanner)
         return node
     }
@@ -149,7 +149,7 @@ enum Asn1Parser {
     /// - Parameter scanner: Scanner to use to consume the data
     /// - Returns: Parsed node
     /// - Throws: A ParserError if anything goes wrong, or if an unknown node was encountered
-    private static func parseNode(scanner: Scanner) throws -> Node {
+    private static func parseNode(scanner: SIGRSA_Scanner) throws -> Node {
         
         let firstByte = try scanner.consume(length: 1).firstByte
         
@@ -209,7 +209,7 @@ enum Asn1Parser {
     /// - Returns: A list of ASN1 nodes
     /// - Throws: A ParserError if anything goes wrong, or if an unknown node was encountered
     private static func parseSequence(data: Data) throws -> [Node] {
-        let scanner = Scanner(data: data)
+        let scanner = SIGRSA_Scanner(data: data)
         var nodes: [Node] = []
         while !scanner.isComplete {
             let node = try parseNode(scanner: scanner)

@@ -9,7 +9,7 @@
 import Foundation
 import Security
 
-public protocol Key: class {
+public protocol SIGRSA_Key: class {
     
     var reference: SecKey { get }
     var originalData: Data? { get }
@@ -26,7 +26,7 @@ public protocol Key: class {
     func base64String() throws -> String
 }
 
-public extension Key {
+public extension SIGRSA_Key {
     
     /// Returns a Base64 representation of the public key.
     ///
@@ -37,7 +37,7 @@ public extension Key {
     }
     
     func data() throws -> Data {
-        return try SwiftyRSA.data(forKeyReference: reference)
+        return try SIGRSA_SwiftyRSA.data(forKeyReference: reference)
     }
     
     /// Creates a public key with a base64-encoded string.
@@ -46,7 +46,7 @@ public extension Key {
     /// - Throws: SwiftyRSAError
     init(base64Encoded base64String: String) throws {
         guard let data = Data(base64Encoded: base64String, options: [.ignoreUnknownCharacters]) else {
-            throw SwiftyRSAError.invalidBase64String
+            throw SIGRSA_SwiftyRSAError.invalidBase64String
         }
         try self.init(data: data)
     }
@@ -56,7 +56,7 @@ public extension Key {
     /// - Parameter pemString: PEM-encoded public key string
     /// - Throws: SwiftyRSAError
     init(pemEncoded pemString: String) throws {
-        let base64String = try SwiftyRSA.base64String(pemEncoded: pemString)
+        let base64String = try SIGRSA_SwiftyRSA.base64String(pemEncoded: pemString)
         try self.init(base64Encoded: base64String)
     }
     
@@ -68,7 +68,7 @@ public extension Key {
     /// - Throws: SwiftyRSAError
     init(pemNamed pemName: String, in bundle: Bundle = Bundle.main) throws {
         guard let path = bundle.path(forResource: pemName, ofType: "pem") else {
-            throw SwiftyRSAError.pemFileNotFound(name: pemName)
+            throw SIGRSA_SwiftyRSAError.pemFileNotFound(name: pemName)
         }
         let keyString = try String(contentsOf: URL(fileURLWithPath: path), encoding: .utf8)
         try self.init(pemEncoded: keyString)
@@ -82,7 +82,7 @@ public extension Key {
     /// - Throws: SwiftyRSAError
     init(derNamed derName: String, in bundle: Bundle = Bundle.main) throws {
         guard let path = bundle.path(forResource: derName, ofType: "der") else {
-            throw SwiftyRSAError.derFileNotFound(name: derName)
+            throw SIGRSA_SwiftyRSAError.derFileNotFound(name: derName)
         }
         let data = try Data(contentsOf: URL(fileURLWithPath: path))
         try self.init(data: data)

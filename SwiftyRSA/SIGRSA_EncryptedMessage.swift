@@ -8,7 +8,7 @@
 
 import Foundation
 
-public class EncryptedMessage: Message {
+public class SIGRSA_EncryptedMessage: SIGRSA_Message {
     
     /// Data of the message
     public let data: Data
@@ -27,7 +27,7 @@ public class EncryptedMessage: Message {
     ///   - padding: Padding to use during the decryption
     /// - Returns: Clear message
     /// - Throws: SwiftyRSAError
-    public func decrypted(with key: PrivateKey, padding: Padding) throws -> ClearMessage {
+    public func decrypted(with key: SIGRSA_PrivateKey, padding: Padding) throws -> SIGRSA_ClearMessage {
         let blockSize = SecKeyGetBlockSize(key.reference)
         
         var encryptedDataAsArray = [UInt8](repeating: 0, count: data.count)
@@ -45,7 +45,7 @@ public class EncryptedMessage: Message {
             
             let status = SecKeyDecrypt(key.reference, padding, chunkData, idxEnd-idx, &decryptedDataBuffer, &decryptedDataLength)
             guard status == noErr else {
-                throw SwiftyRSAError.chunkDecryptFailed(index: idx)
+                throw SIGRSA_SwiftyRSAError.chunkDecryptFailed(index: idx)
             }
             
             decryptedDataBytes += [UInt8](decryptedDataBuffer[0..<decryptedDataLength])
@@ -54,6 +54,6 @@ public class EncryptedMessage: Message {
         }
         
         let decryptedData = Data(bytes: UnsafePointer<UInt8>(decryptedDataBytes), count: decryptedDataBytes.count)
-        return ClearMessage(data: decryptedData)
+        return SIGRSA_ClearMessage(data: decryptedData)
     }
 }

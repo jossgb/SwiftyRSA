@@ -8,7 +8,7 @@
 
 import Foundation
 
-public class PrivateKey: Key {
+@objc public class SIGRSA_PrivateKey: NSObject,SIGRSA_Key {
     
     /// Reference to the key within the keychain
     public let reference: SecKey
@@ -25,7 +25,7 @@ public class PrivateKey: Key {
     /// - Throws: SwiftyRSAError
     public func pemString() throws -> String {
         let data = try self.data()
-        let pem = SwiftyRSA.format(keyData: data, withPemType: "RSA PRIVATE KEY")
+        let pem = SIGRSA_SwiftyRSA.format(keyData: data, withPemType: "RSA PRIVATE KEY")
         return pem
     }
     
@@ -36,8 +36,8 @@ public class PrivateKey: Key {
     /// - Throws: SwiftyRSAError
     public required init(reference: SecKey) throws {
         
-        guard SwiftyRSA.isValidKeyReference(reference, forClass: kSecAttrKeyClassPrivate) else {
-            throw SwiftyRSAError.notAPrivateKey
+        guard SIGRSA_SwiftyRSA.isValidKeyReference(reference, forClass: kSecAttrKeyClassPrivate) else {
+            throw SIGRSA_SwiftyRSAError.notAPrivateKey
         }
         
         self.reference = reference
@@ -53,13 +53,13 @@ public class PrivateKey: Key {
         self.originalData = data
         let tag = UUID().uuidString
         self.tag = tag
-        let dataWithoutHeader = try SwiftyRSA.stripKeyHeader(keyData: data)
-        reference = try SwiftyRSA.addKey(dataWithoutHeader, isPublic: false, tag: tag)
+        let dataWithoutHeader = try SIGRSA_SwiftyRSA.stripKeyHeader(keyData: data)
+        reference = try SIGRSA_SwiftyRSA.addKey(dataWithoutHeader, isPublic: false, tag: tag)
     }
     
     deinit {
         if let tag = tag {
-            SwiftyRSA.removeKey(tag: tag)
+            SIGRSA_SwiftyRSA.removeKey(tag: tag)
         }
     }
 }

@@ -14,7 +14,7 @@ import Foundation
 /// They are exposed under the same name to the ObjC runtime, and all methods are present – they're just delegated
 /// to the wrapped swift value.
 
-fileprivate protocol ObjcBridgeable {
+fileprivate protocol RSA_ObjcBridgeable {
     associatedtype SwiftType
     var swiftValue: SwiftType { get }
     init(swiftValue: SwiftType)
@@ -22,10 +22,10 @@ fileprivate protocol ObjcBridgeable {
 
 // MARK: - PublicKey
 
-@objc(PublicKey)
-public class _objc_PublicKey: NSObject, Key, ObjcBridgeable { // swiftlint:disable:this type_name
+@objc(RSAPublicKey)
+public class _objc_RSAPublicKey: NSObject, SIGRSA_Key, RSA_ObjcBridgeable { // swiftlint:disable:this type_name
     
-    fileprivate let swiftValue: PublicKey
+    fileprivate let swiftValue: SIGRSA_PublicKey
     
     public var reference: SecKey {
         return swiftValue.reference
@@ -47,45 +47,45 @@ public class _objc_PublicKey: NSObject, Key, ObjcBridgeable { // swiftlint:disab
         return try swiftValue.base64String()
     }
     
-    public required init(swiftValue: PublicKey) {
+    public required init(swiftValue: SIGRSA_PublicKey) {
         self.swiftValue = swiftValue
     }
     
     required public init(data: Data) throws {
-        self.swiftValue = try PublicKey(data: data)
+        self.swiftValue = try SIGRSA_PublicKey(data: data)
     }
     
     public required init(reference: SecKey) throws {
-        self.swiftValue = try PublicKey(reference: reference)
+        self.swiftValue = try SIGRSA_PublicKey(reference: reference)
     }
     
     public required init(base64Encoded base64String: String) throws {
-        self.swiftValue = try PublicKey(base64Encoded: base64String)
+        self.swiftValue = try SIGRSA_PublicKey(base64Encoded: base64String)
     }
     
     public required init(pemEncoded pemString: String) throws {
-        self.swiftValue = try PublicKey(pemEncoded: pemString)
+        self.swiftValue = try SIGRSA_PublicKey(pemEncoded: pemString)
     }
     
     public required init(pemNamed pemName: String, in bundle: Bundle) throws {
-        self.swiftValue = try PublicKey(pemNamed: pemName, in: bundle)
+        self.swiftValue = try SIGRSA_PublicKey(pemNamed: pemName, in: bundle)
     }
     
     public required init(derNamed derName: String, in bundle: Bundle) throws {
-        self.swiftValue = try PublicKey(derNamed: derName, in: bundle)
+        self.swiftValue = try SIGRSA_PublicKey(derNamed: derName, in: bundle)
     }
     
-    public static func publicKeys(pemEncoded pemString: String) -> [_objc_PublicKey] {
-        return PublicKey.publicKeys(pemEncoded: pemString).map { _objc_PublicKey(swiftValue: $0) }
+    public static func publicKeys(pemEncoded pemString: String) -> [_objc_RSAPublicKey] {
+        return SIGRSA_PublicKey.publicKeys(pemEncoded: pemString).map { _objc_RSAPublicKey(swiftValue: $0) }
     }
 }
 
 // MARK: - PrivateKey
 
-@objc(PrivateKey)
-public class _objc_PrivateKey: NSObject, Key, ObjcBridgeable { // swiftlint:disable:this type_name
+@objc(RSAPrivateKey)
+public class _objc_RSAPrivateKey: NSObject, SIGRSA_Key, RSA_ObjcBridgeable { // swiftlint:disable:this type_name
     
-    fileprivate let swiftValue: PrivateKey
+    fileprivate let swiftValue: SIGRSA_PrivateKey
     
     public var reference: SecKey {
         return swiftValue.reference
@@ -107,39 +107,39 @@ public class _objc_PrivateKey: NSObject, Key, ObjcBridgeable { // swiftlint:disa
         return try swiftValue.base64String()
     }
     
-    public required init(swiftValue: PrivateKey) {
+    public required init(swiftValue: SIGRSA_PrivateKey) {
         self.swiftValue = swiftValue
     }
     
     public required init(data: Data) throws {
-        self.swiftValue = try PrivateKey(data: data)
+        self.swiftValue = try SIGRSA_PrivateKey(data: data)
     }
     
     public required init(reference: SecKey) throws {
-        self.swiftValue = try PrivateKey(reference: reference)
+        self.swiftValue = try SIGRSA_PrivateKey(reference: reference)
     }
     
     public required init(base64Encoded base64String: String) throws {
-        self.swiftValue = try PrivateKey(base64Encoded: base64String)
+        self.swiftValue = try SIGRSA_PrivateKey(base64Encoded: base64String)
     }
     
     public required init(pemEncoded pemString: String) throws {
-        self.swiftValue = try PrivateKey(pemEncoded: pemString)
+        self.swiftValue = try SIGRSA_PrivateKey(pemEncoded: pemString)
     }
     
     public required init(pemNamed pemName: String, in bundle: Bundle) throws {
-        self.swiftValue = try PrivateKey(pemNamed: pemName, in: bundle)
+        self.swiftValue = try SIGRSA_PrivateKey(pemNamed: pemName, in: bundle)
     }
     
     public required init(derNamed derName: String, in bundle: Bundle) throws {
-        self.swiftValue = try PrivateKey(derNamed: derName, in: bundle)
+        self.swiftValue = try SIGRSA_PrivateKey(derNamed: derName, in: bundle)
     }
 }
 
 // MARK: - VerificationResult
 
-@objc(VerificationResult)
-public class _objc_VerificationResult: NSObject { // swiftlint:disable:this type_name
+@objc(RSAVerificationResult)
+public class _objc_RSAVerificationResult: NSObject { // swiftlint:disable:this type_name
     public let isSuccessful: Bool
     init(isSuccessful: Bool) {
         self.isSuccessful = isSuccessful
@@ -148,10 +148,10 @@ public class _objc_VerificationResult: NSObject { // swiftlint:disable:this type
 
 // MARK: - ClearMessage
 
-@objc(ClearMessage)
-public class _objc_ClearMessage: NSObject, Message, ObjcBridgeable { // swiftlint:disable:this type_name
+@objc(RSAClearMessage)
+public class _objc_RSAClearMessage: NSObject, SIGRSA_Message, RSA_ObjcBridgeable { // swiftlint:disable:this type_name
     
-    fileprivate let swiftValue: ClearMessage
+    fileprivate let swiftValue: SIGRSA_ClearMessage
     
     public var base64String: String {
         return swiftValue.base64String
@@ -161,49 +161,49 @@ public class _objc_ClearMessage: NSObject, Message, ObjcBridgeable { // swiftlin
         return swiftValue.data
     }
     
-    public required init(swiftValue: ClearMessage) {
+    public required init(swiftValue: SIGRSA_ClearMessage) {
         self.swiftValue = swiftValue
     }
     
     public required init(data: Data) {
-        self.swiftValue = ClearMessage(data: data)
+        self.swiftValue = SIGRSA_ClearMessage(data: data)
     }
     
     public required init(string: String, using rawEncoding: UInt) throws {
         let encoding = String.Encoding(rawValue: rawEncoding)
-        self.swiftValue = try ClearMessage(string: string, using: encoding)
+        self.swiftValue = try SIGRSA_ClearMessage(string: string, using: encoding)
     }
     
     public required init(base64Encoded base64String: String) throws {
-        self.swiftValue = try ClearMessage(base64Encoded: base64String)
+        self.swiftValue = try SIGRSA_ClearMessage(base64Encoded: base64String)
     }
     
     public func string(encoding: String.Encoding) throws -> String {
         return try swiftValue.string(encoding: encoding)
     }
     
-    public func encrypted(with key: _objc_PublicKey, padding: Padding) throws -> _objc_EncryptedMessage {
+    public func encrypted(with key: _objc_RSAPublicKey, padding: Padding) throws -> _objc_RSAEncryptedMessage {
         let encryptedMessage = try swiftValue.encrypted(with: key.swiftValue, padding: padding)
-        return _objc_EncryptedMessage(swiftValue: encryptedMessage)
+        return _objc_RSAEncryptedMessage(swiftValue: encryptedMessage)
     }
     
-    public func signed(with key: _objc_PrivateKey, digestType: _objc_Signature.DigestType) throws -> _objc_Signature {
+    public func signed(with key: _objc_RSAPrivateKey, digestType: _objc_RSASignature.DigestTypeRSA) throws -> _objc_RSASignature {
         let signature = try swiftValue.signed(with: key.swiftValue, digestType: digestType.swiftValue)
-        return _objc_Signature(swiftValue: signature)
+        return _objc_RSASignature(swiftValue: signature)
     }
     
-    public func verify(with key: _objc_PublicKey, signature: _objc_Signature, digestType: _objc_Signature.DigestType) throws -> _objc_VerificationResult {
+    public func verify(with key: _objc_RSAPublicKey, signature: _objc_RSASignature, digestType: _objc_RSASignature.DigestTypeRSA) throws -> _objc_RSAVerificationResult {
         let isSuccessful = try swiftValue.verify(with: key.swiftValue, signature: signature.swiftValue, digestType: digestType.swiftValue)
-        return _objc_VerificationResult(isSuccessful: isSuccessful)
+        return _objc_RSAVerificationResult(isSuccessful: isSuccessful)
     }
 }
 
 // MARK: - EncryptedMessage
 
-@objc(EncryptedMessage)
-public class _objc_EncryptedMessage: NSObject, Message, ObjcBridgeable { // swiftlint:disable:this type_name
+@objc(RSAEncryptedMessage)
+public class _objc_RSAEncryptedMessage: NSObject, SIGRSA_Message, RSA_ObjcBridgeable { // swiftlint:disable:this type_name
     
-    fileprivate let swiftValue: EncryptedMessage
+    fileprivate let swiftValue: SIGRSA_EncryptedMessage
     
     public var base64String: String {
         return swiftValue.base64String
@@ -213,38 +213,38 @@ public class _objc_EncryptedMessage: NSObject, Message, ObjcBridgeable { // swif
         return swiftValue.data
     }
     
-    public required init(swiftValue: EncryptedMessage) {
+    public required init(swiftValue: SIGRSA_EncryptedMessage) {
         self.swiftValue = swiftValue
     }
     
     public required init(data: Data) {
-        self.swiftValue = EncryptedMessage(data: data)
+        self.swiftValue = SIGRSA_EncryptedMessage(data: data)
     }
     
     public required init(base64Encoded base64String: String) throws {
-        self.swiftValue = try EncryptedMessage(base64Encoded: base64String)
+        self.swiftValue = try SIGRSA_EncryptedMessage(base64Encoded: base64String)
     }
     
-    public func decrypted(with key: _objc_PrivateKey, padding: Padding) throws -> _objc_ClearMessage {
+    public func decrypted(with key: _objc_RSAPrivateKey, padding: Padding) throws -> _objc_RSAClearMessage {
         let clearMessage = try swiftValue.decrypted(with: key.swiftValue, padding: padding)
-        return _objc_ClearMessage(swiftValue: clearMessage)
+        return _objc_RSAClearMessage(swiftValue: clearMessage)
     }
 }
 
 // MARK: - Signature
 
-@objc(Signature)
-public class _objc_Signature: NSObject, ObjcBridgeable { // swiftlint:disable:this type_name
+@objc(RSASignature)
+public class _objc_RSASignature: NSObject, RSA_ObjcBridgeable { // swiftlint:disable:this type_name
     
     @objc
-    public enum DigestType: Int {
+    public enum DigestTypeRSA: Int {
         case sha1
         case sha224
         case sha256
         case sha384
         case sha512
         
-        fileprivate var swiftValue: Signature.DigestType {
+        fileprivate var swiftValue: SIGRSA_Signature.DigestTypeRSA {
             switch self {
             case .sha1: return .sha1
             case .sha224: return .sha224
@@ -255,7 +255,7 @@ public class _objc_Signature: NSObject, ObjcBridgeable { // swiftlint:disable:th
         }
     }
     
-    fileprivate let swiftValue: Signature
+    fileprivate let swiftValue: SIGRSA_Signature
     
     public var base64String: String {
         return swiftValue.base64String
@@ -265,15 +265,15 @@ public class _objc_Signature: NSObject, ObjcBridgeable { // swiftlint:disable:th
         return swiftValue.data
     }
     
-    public required init(swiftValue: Signature) {
+    public required init(swiftValue: SIGRSA_Signature) {
         self.swiftValue = swiftValue
     }
     
     public init(data: Data) {
-        self.swiftValue = Signature(data: data)
+        self.swiftValue = SIGRSA_Signature(data: data)
     }
     
     public required init(base64Encoded base64String: String) throws {
-        self.swiftValue = try Signature(base64Encoded: base64String)
+        self.swiftValue = try SIGRSA_Signature(base64Encoded: base64String)
     }
 }

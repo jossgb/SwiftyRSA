@@ -8,7 +8,7 @@
 
 import Foundation
 
-public class PublicKey: Key {
+public class SIGRSA_PublicKey : SIGRSA_Key  {
     
     /// Reference to the key within the keychain
     public let reference: SecKey
@@ -27,7 +27,7 @@ public class PublicKey: Key {
     /// - Throws: SwiftyRSAError
     public func pemString() throws -> String {
         let data = try self.data()
-        let pem = SwiftyRSA.format(keyData: data, withPemType: "RSA PUBLIC KEY")
+        let pem = SIGRSA_SwiftyRSA.format(keyData: data, withPemType: "RSA PUBLIC KEY")
         return pem
     }
     
@@ -38,8 +38,8 @@ public class PublicKey: Key {
     /// - Throws: SwiftyRSAError
     public required init(reference: SecKey) throws {
         
-        guard SwiftyRSA.isValidKeyReference(reference, forClass: kSecAttrKeyClassPublic) else {
-            throw SwiftyRSAError.notAPublicKey
+        guard SIGRSA_SwiftyRSA.isValidKeyReference(reference, forClass: kSecAttrKeyClassPublic) else {
+            throw SIGRSA_SwiftyRSAError.notAPublicKey
         }
         
         self.reference = reference
@@ -58,9 +58,9 @@ public class PublicKey: Key {
         self.tag = tag
         
         self.originalData = data
-        let dataWithoutHeader = try SwiftyRSA.stripKeyHeader(keyData: data)
+        let dataWithoutHeader = try SIGRSA_SwiftyRSA.stripKeyHeader(keyData: data)
         
-        reference = try SwiftyRSA.addKey(dataWithoutHeader, isPublic: true, tag: tag)
+        reference = try SIGRSA_SwiftyRSA.addKey(dataWithoutHeader, isPublic: true, tag: tag)
     }
     
     static let publicKeyRegex: NSRegularExpression? = {
@@ -76,7 +76,7 @@ public class PublicKey: Key {
     /// - parameter pemString: The string to use to parse out values
     ///
     /// - returns: An array of `PublicKey` objects
-    public static func publicKeys(pemEncoded pemString: String) -> [PublicKey] {
+    public static func publicKeys(pemEncoded pemString: String) -> [SIGRSA_PublicKey] {
         
         // If our regexp isn't valid, or the input string is empty, we can't move forward…
         guard let publicKeyRegexp = publicKeyRegex, pemString.count > 0 else {
@@ -94,7 +94,7 @@ public class PublicKey: Key {
             range: all
         )
         
-        let keys = matches.compactMap { result -> PublicKey? in
+        let keys = matches.compactMap { result -> SIGRSA_PublicKey? in
             let match = result.range(at:1)
             let start = pemString.index(pemString.startIndex, offsetBy: match.location)
             let end = pemString.index(start, offsetBy: match.length)
@@ -103,7 +103,7 @@ public class PublicKey: Key {
             
             let thisKey = String(pemString[range])
             
-            return try? PublicKey(pemEncoded: thisKey)
+            return try? SIGRSA_PublicKey(pemEncoded: thisKey)
         }
         
         return keys
@@ -111,7 +111,7 @@ public class PublicKey: Key {
     
     deinit {
         if let tag = tag {
-            SwiftyRSA.removeKey(tag: tag)
+            SIGRSA_SwiftyRSA.removeKey(tag: tag)
         }
     }
 }

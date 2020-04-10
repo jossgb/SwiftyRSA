@@ -27,7 +27,7 @@ extension Data {
     }
 }
 
-enum SwiftyRSA {
+enum SIGRSA_SwiftyRSA {
     
     static func base64String(pemEncoded pemString: String) throws -> String {
         let lines = pemString.components(separatedBy: "\n").filter { line in
@@ -35,7 +35,7 @@ enum SwiftyRSA {
         }
         
         guard lines.count != 0 else {
-            throw SwiftyRSAError.pemDoesNotContainKey
+            throw SIGRSA_SwiftyRSAError.pemDoesNotContainKey
         }
         
         return lines.joined(separator: "")
@@ -89,7 +89,7 @@ enum SwiftyRSA {
             var error: Unmanaged<CFError>? = nil
             let data = SecKeyCopyExternalRepresentation(reference, &error)
             guard let unwrappedData = data as Data? else {
-                throw SwiftyRSAError.keyRepresentationFailed(error: error?.takeRetainedValue())
+                throw SIGRSA_SwiftyRSAError.keyRepresentationFailed(error: error?.takeRetainedValue())
             }
             return unwrappedData
         
@@ -108,7 +108,7 @@ enum SwiftyRSA {
             var data: AnyObject?
             let addStatus = SecItemAdd(addParams as CFDictionary, &data)
             guard let unwrappedData = data as? Data else {
-                throw SwiftyRSAError.keyAddFailed(status: addStatus)
+                throw SIGRSA_SwiftyRSAError.keyAddFailed(status: addStatus)
             }
             
             let deleteParams: [CFString: Any] = [
@@ -127,7 +127,7 @@ enum SwiftyRSA {
         var keyData = keyData
         
         guard let tagData = tag.data(using: .utf8) else {
-            throw SwiftyRSAError.tagEncodingFailed
+            throw SIGRSA_SwiftyRSAError.tagEncodingFailed
         }
         
         let keyClass = isPublic ? kSecAttrKeyClassPublic : kSecAttrKeyClassPrivate
@@ -145,7 +145,7 @@ enum SwiftyRSA {
             
             var error: Unmanaged<CFError>?
             guard let key = SecKeyCreateWithData(keyData as CFData, keyDict as CFDictionary, &error) else {
-                throw SwiftyRSAError.keyCreateFailed(error: error?.takeRetainedValue())
+                throw SIGRSA_SwiftyRSAError.keyCreateFailed(error: error?.takeRetainedValue())
             }
             return key
             
@@ -166,7 +166,7 @@ enum SwiftyRSA {
             
             let addStatus = SecItemAdd(keyAddDict as CFDictionary, persistKey)
             guard addStatus == errSecSuccess || addStatus == errSecDuplicateItem else {
-                throw SwiftyRSAError.keyAddFailed(status: addStatus)
+                throw SIGRSA_SwiftyRSAError.keyAddFailed(status: addStatus)
             }
             
             let keyCopyDict: [CFString: Any] = [
@@ -183,7 +183,7 @@ enum SwiftyRSA {
             let copyStatus = SecItemCopyMatching(keyCopyDict as CFDictionary, &keyRef)
             
             guard let unwrappedKeyRef = keyRef else {
-                throw SwiftyRSAError.keyCopyFailed(status: copyStatus)
+                throw SIGRSA_SwiftyRSAError.keyCopyFailed(status: copyStatus)
             }
             
             return unwrappedKeyRef as! SecKey // swiftlint:disable:this force_cast
@@ -219,16 +219,16 @@ enum SwiftyRSA {
      */
     static func stripKeyHeader(keyData: Data) throws -> Data {
         
-        let node: Asn1Parser.Node
+        let node: SIGRSA_Asn1Parser.Node
         do {
-            node = try Asn1Parser.parse(data: keyData)
+            node = try SIGRSA_Asn1Parser.parse(data: keyData)
         } catch {
-            throw SwiftyRSAError.asn1ParsingFailed
+            throw SIGRSA_SwiftyRSAError.asn1ParsingFailed
         }
         
         // Ensure the raw data is an ASN1 sequence
         guard case .sequence(let nodes) = node else {
-            throw SwiftyRSAError.invalidAsn1RootNode
+            throw SIGRSA_SwiftyRSAError.invalidAsn1RootNode
         }
         
         // Detect whether the sequence only has integers, in which case it's a headerless key
@@ -255,7 +255,7 @@ enum SwiftyRSA {
         }
         
         // Unable to extract bit/octet string or raw integer sequence
-        throw SwiftyRSAError.invalidAsn1Structure
+        throw SIGRSA_SwiftyRSAError.invalidAsn1Structure
     }
     
     static func removeKey(tag: String) {
